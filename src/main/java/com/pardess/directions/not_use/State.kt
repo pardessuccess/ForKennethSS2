@@ -1,4 +1,4 @@
-package com.pardess.directions.presentation
+package com.pardess.directions.not_use
 
 data class State(
     val isLoading: Boolean = false,

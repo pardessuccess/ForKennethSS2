@@ -1,11 +1,9 @@
-package com.pardess.directions.not_use
+package com.pardess.directions.presentation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
@@ -16,16 +14,13 @@ import com.pardess.directions.domain.model.RouteLines
 import com.pardess.directions.domain.usecase.distance_time.GetRouteInfo
 import com.pardess.directions.domain.usecase.location.GetPathList
 import com.pardess.directions.domain.usecase.route.GetRouteList
-import com.pardess.directions.presentation.DataState
-import com.pardess.directions.presentation.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
-class LocationListViewModel @Inject constructor(
+class DirectionViewModel @Inject constructor(
     private val getPathList: GetPathList,
     private val getRouteList: GetRouteList,
     private val getRouteInfo: GetRouteInfo

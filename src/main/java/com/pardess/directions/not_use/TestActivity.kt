@@ -68,6 +68,8 @@ import com.kakao.vectormap.route.RouteLineOptions
 import com.kakao.vectormap.route.RouteLineSegment
 import com.pardess.directions.R
 import com.pardess.directions.domain.model.Paths
+import com.pardess.directions.presentation.DirectionComponent
+import com.pardess.directions.presentation.DirectionViewModel
 import com.pardess.directions.presentation.Utils
 import com.pardess.directions.presentation.theme.DirectionsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -80,7 +82,7 @@ class TestActivity : ComponentActivity() {
     private lateinit var multiStyleLine: RouteLine
     private lateinit var labelLayer: LabelLayer
     private lateinit var kakaoMap: KakaoMap
-    private val viewModel by viewModels<LocationListViewModel>()
+    private val viewModel by viewModels<DirectionViewModel>()
 
     private var mapView: MapView? = null
 
@@ -185,7 +187,7 @@ class TestActivity : ComponentActivity() {
 
     @Composable
     fun NavigateInfoOverlay(
-        viewModel: LocationListViewModel,
+        viewModel: DirectionViewModel,
         modifier: Modifier,
         straightDistance: Int,
     ) {
@@ -307,7 +309,7 @@ class TestActivity : ComponentActivity() {
     fun LectureKakaoMap(
         modifier: Modifier = Modifier,
         mapView: MapView,
-        viewModel: LocationListViewModel,
+        viewModel: DirectionViewModel,
         locationX: Double, // 서버에서 제공하는 X 값 (경도)
         locationY: Double, // 서버에서 제공하는 Y 값 (위도)
     ) {
@@ -440,7 +442,7 @@ class TestActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetSection(
-    viewModel: LocationListViewModel,
+    viewModel: DirectionViewModel,
     bottomSheetState: SheetState,
     setShowBottomSheet: (Boolean) -> Unit,
     setPaths: (Pair<String, String>) -> Unit,
@@ -524,7 +526,7 @@ fun BottomSheetSection(
 
 @Composable
 fun Direction2Component(
-    viewModel: LocationListViewModel,
+    viewModel: DirectionViewModel,
     onClick: () -> Unit,
     paths: Paths
 ) {

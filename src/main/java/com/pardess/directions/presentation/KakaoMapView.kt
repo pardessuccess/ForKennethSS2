@@ -5,11 +5,7 @@ import android.widget.Toast
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
@@ -40,7 +36,6 @@ import com.orhanobut.logger.Logger
 import com.pardess.directions.R
 import com.pardess.directions.domain.model.RouteLines
 import com.pardess.directions.domain.model.TrafficState
-import com.pardess.directions.not_use.LocationListViewModel
 
 private lateinit var layer: RouteLineLayer
 private lateinit var multiStyleLine: RouteLine
@@ -51,7 +46,7 @@ private val duration = 500
 
 @Composable
 fun KakaoMapView(
-    viewModel: LocationListViewModel
+    viewModel: DirectionViewModel
 ) {
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
@@ -115,8 +110,6 @@ fun drawRouteLine(
     destination: String,
 ) {
     val routeSegmentList = mutableListOf<RouteLineSegment>()
-
-
     println("@@@@@ drawRouteLine()")
 
     if (::multiStyleLine.isInitialized) {
@@ -246,7 +239,6 @@ private fun setLabelWithText(
         CameraAnimation.from(duration)
     )
 }
-
 
 @Composable
 fun rememberMapViewWithLifecycle(context: Context, lifecycleOwner: LifecycleOwner): MapView {

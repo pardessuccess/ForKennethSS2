@@ -1,4 +1,4 @@
-package com.pardess.directions.not_use
+package com.pardess.directions.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -30,7 +29,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,16 +46,14 @@ import com.pardess.directions.R
 import com.pardess.directions.data.response.location.Location
 import com.pardess.directions.domain.model.Paths
 import com.pardess.directions.domain.model.RouteInfo
-import com.pardess.directions.presentation.DataState
-import com.pardess.directions.presentation.KakaoMapView
-import com.pardess.directions.presentation.Utils
+import com.pardess.directions.not_use.clickWithCoroutine
 import com.pardess.directions.presentation.component.ErrorAlertDialog
 import com.pardess.directions.presentation.theme.DirectionsTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DirectionApp(
-    viewModel: LocationListViewModel
+    viewModel: DirectionViewModel
 ) {
     DirectionsTheme {
         Surface {
@@ -142,7 +138,7 @@ fun DirectionApp(
 
 @Composable
 fun NavigateInfoOverlay(
-    viewModel: LocationListViewModel,
+    viewModel: DirectionViewModel,
     modifier: Modifier,
     straightDistance: Int,
     routeInfo: RouteInfo,
@@ -189,7 +185,7 @@ fun NavigateInfoOverlay(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetSection(
-    viewModel: LocationListViewModel,
+    viewModel: DirectionViewModel,
     locationList: List<Location>,
     bottomSheetState: SheetState,
     setShowBottomSheet: (Boolean) -> Unit,
@@ -274,7 +270,7 @@ fun BottomSheetSection(
 
 @Composable
 fun DirectionComponent(
-    viewModel: LocationListViewModel,
+    viewModel: DirectionViewModel,
     onClick: () -> Unit,
     paths: Paths
 ) {

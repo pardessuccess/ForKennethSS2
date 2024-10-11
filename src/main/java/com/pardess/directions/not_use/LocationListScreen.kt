@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pardess.directions.domain.model.Paths
+import com.pardess.directions.presentation.DirectionComponent
+import com.pardess.directions.presentation.DirectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -68,7 +70,7 @@ val lst = listOf(
 
 @Composable
 fun LocationListScreen(
-    viewModel: LocationListViewModel
+    viewModel: DirectionViewModel
 ) {
 
 

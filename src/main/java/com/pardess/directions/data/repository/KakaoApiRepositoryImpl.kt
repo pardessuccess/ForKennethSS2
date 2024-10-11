@@ -62,7 +62,6 @@ class KakaoApiRepositoryImpl @Inject constructor(
                 }
             }
         }
-
         return resource
     }
 
