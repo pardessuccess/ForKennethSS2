@@ -1,19 +1,22 @@
 package com.pardess.directions.di
 
+import android.content.Context
 import com.google.gson.GsonBuilder
-import com.pardess.directions.Constants
-import com.pardess.directions.Constants.BASE_URL
+import com.pardess.directions.presentation.Constants
+import com.pardess.directions.presentation.Constants.BASE_URL
 import com.pardess.directions.data.network.KakaoApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Qualifier
+import java.io.File
 import javax.inject.Singleton
 
 
@@ -25,6 +28,7 @@ object AppModule {
 //    @Qualifier
 //    @Retention(AnnotationRetention.BINARY)
 //    annotation class KakaoRetrofit
+
 
     @Provides
     @Singleton
@@ -51,11 +55,11 @@ object AppModule {
     @Provides
     fun provideOkHttp(): OkHttpClient {
 
-        val logging = HttpLoggingInterceptor().apply {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
             setLevel(HttpLoggingInterceptor.Level.BODY)  // 요청 및 응답의 바디 내용을 로그로 출력
         }
 
-        val interceptor = Interceptor { chain ->
+        val headerInterceptor = Interceptor { chain ->
             val original = chain.request()
 
             // Authorization 헤더 추가
@@ -67,7 +71,8 @@ object AppModule {
             chain.proceed(request)
         }
 
-        return OkHttpClient.Builder().addInterceptor(interceptor).addInterceptor(logging).build()
+        return OkHttpClient.Builder().addInterceptor(headerInterceptor)
+            .addInterceptor(loggingInterceptor).build()
     }
 
 

@@ -33,6 +33,7 @@ android {
             "KAKAO_MOBILITY_KEY",
             properties.getProperty("KAKAO_MOBILITY_KEY")
         )
+        buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -79,6 +80,9 @@ dependencies {
     ksp("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
+    //Logger
+    implementation("com.orhanobut:logger:2.2.0")
+
     //KakaoMap
     implementation("com.kakao.maps.open:android:2.11.9")
 
@@ -95,7 +99,8 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+//    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3-android:1.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")

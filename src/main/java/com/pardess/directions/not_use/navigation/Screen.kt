@@ -1,4 +1,4 @@
-package com.pardess.directions.presentation.navigation
+package com.pardess.directions.not_use.navigation
 
 enum class Screen(
     val title: String,

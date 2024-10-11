@@ -53,7 +53,6 @@ object DataMapper {
                 }
             }
 
-
             RouteLines(
                 wayList = latLngList,
                 trafficState = trafficState

@@ -1,4 +1,4 @@
-package com.pardess.directions.presentation.navigation
+package com.pardess.directions.not_use.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.pardess.directions.not_use.LocationListScreen
-import com.pardess.directions.presentation.navgraph.DestinationRoute.MAIN_ROUTE
+import com.pardess.directions.not_use.navgraph.DestinationRoute.MAIN_ROUTE
 
 
 @Composable

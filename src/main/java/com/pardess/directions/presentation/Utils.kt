@@ -1,19 +1,25 @@
 package com.pardess.directions.presentation
 
+import com.kakao.vectormap.LatLng
 import com.pardess.directions.domain.model.RouteInfo
+import kotlin.math.*
 
 object Utils {
 
-
-    fun setRouteInfo(routeInfo: RouteInfo): Pair<String, String> {
+    fun setRouteInfo(
+        routeInfo: RouteInfo,
+    ): Pair<String, String> {
         return Pair(
             setTime(routeInfo.hour, routeInfo.minute, routeInfo.second),
-            meterWithComma(routeInfo.distance)
+            meterWithComma(
+                "거리",
+                routeInfo.distance
+            ),
         )
     }
 
-    private fun meterWithComma(number: Int): String {
-        val distanceString = StringBuilder("거리 : ")
+    fun meterWithComma(text: String, number: Int): String {
+        val distanceString = StringBuilder("$text : ")
         distanceString.append(String.format("%,d", number))
         distanceString.append(" m")
 
@@ -35,6 +41,29 @@ object Utils {
         timeString.append(String.format("%1d초", second))
 
         return timeString.toString().trim()
+    }
+
+    fun haversine(startLatLng: LatLng, endLatLng: LatLng): Int {
+
+        val startLat = startLatLng.latitude
+        val startLng = startLatLng.longitude
+
+        val endLat = endLatLng.latitude
+        val endLng = endLatLng.longitude
+
+        val R = 6371e3 // 지구 반지름 (미터)
+        val phi1 = startLat * (Math.PI / 180) // 위도를 라디안으로 변환
+        val phi2 = endLat * (Math.PI / 180)
+        val deltaPhi = (endLat - startLat) * (Math.PI / 180)
+        val deltaLambda = (endLng - startLng) * (Math.PI / 180)
+
+        val a = sin(deltaPhi / 2) * sin(deltaPhi / 2) +
+                cos(phi1) * cos(phi2) *
+                sin(deltaLambda / 2) * sin(deltaLambda / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        val distance = R * c // 두 지점 사이의 직선 거리 (미터)
+        return distance.toInt()
     }
 
 }

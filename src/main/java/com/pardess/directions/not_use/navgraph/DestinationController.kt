@@ -1,4 +1,4 @@
-package com.pardess.directions.presentation.navgraph
+package com.pardess.directions.not_use.navgraph
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController

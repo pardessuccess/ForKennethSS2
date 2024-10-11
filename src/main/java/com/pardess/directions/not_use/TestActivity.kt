@@ -1,4 +1,4 @@
-package com.pardess.directions.presentation
+package com.pardess.directions.not_use
 
 import android.os.Bundle
 import android.widget.Toast
@@ -66,14 +66,12 @@ import com.kakao.vectormap.route.RouteLine
 import com.kakao.vectormap.route.RouteLineLayer
 import com.kakao.vectormap.route.RouteLineOptions
 import com.kakao.vectormap.route.RouteLineSegment
-import com.kakao.vectormap.route.RouteLineStyle
 import com.pardess.directions.R
 import com.pardess.directions.domain.model.Paths
-import com.pardess.directions.domain.model.TrafficState
-import com.pardess.directions.not_use.LocationListViewModel
-import com.pardess.directions.not_use.clickWithCoroutine
+import com.pardess.directions.presentation.Utils
 import com.pardess.directions.presentation.theme.DirectionsTheme
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class TestActivity : ComponentActivity() {
@@ -87,18 +85,18 @@ class TestActivity : ComponentActivity() {
     private var mapView: MapView? = null
 
     private val duration = 500
-//    private var second = 32652L
-//    private var distance = 24427L
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mapView = MapView(this)
+//        mapView = MapView(this)
 
         setContent {
+//            TestRoute()
             mapView = remember { MapView(this) }
             DirectionsTheme {
                 var showBottomSheet by remember { mutableStateOf(true) }
+
                 val bottomSheetState = rememberModalBottomSheetState(
                     skipPartiallyExpanded = true
                 )
@@ -106,23 +104,30 @@ class TestActivity : ComponentActivity() {
                 var paths by remember { mutableStateOf(Paths("", "")) }
 
                 var count by remember { mutableStateOf(0) }
+
+                var straightDistance by remember { mutableStateOf(0) }
+
                 LaunchedEffect(count) {
                     println(count)
                 }
 
-                LaunchedEffect(viewModel.routeInfo) {
-                    println("@@@@@" + viewModel.routeInfo.toString())
-                }
-
-                viewModel.routeLineList.observe(this) {
-                    if (it.isNotEmpty()) {
-                        println("@@@@ viewModel.routeLineList.observe")
-                        drawRouteLine(
-                            paths.origin,
-                            paths.destination
-                        )
-                    }
-                }
+//                LaunchedEffect(viewModel.routeInfo2) {
+//                    println("@@@@@" + viewModel.routeInfo2.toString())
+//                }
+//
+//                viewModel.routeLineList2.observe(this) { routeLines ->
+//                    if (routeLines.isNotEmpty()) {
+//                        println("@@@@ viewModel.routeLineList.observe")
+//                        drawRouteLine(
+//                            paths.origin,
+//                            paths.destination
+//                        )
+//                        straightDistance = Utils.haversine(
+//                            routeLines.first().wayList.first(),
+//                            routeLines.last().wayList.last()
+//                        )
+//                    }
+//                }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -146,16 +151,17 @@ class TestActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(it.calculateTopPadding())
                     ) {
-                        LectureKakaoMap(
-                            mapView = mapView!!,
-                            viewModel = viewModel,
-                            locationX = 126.97227318174524,
-                            locationY = 37.55595957732287
-                        )
+//                        LectureKakaoMap(
+//                            mapView = mapView!!,
+//                            viewModel = viewModel,
+//                            locationX = 126.97227318174524,
+//                            locationY = 37.55595957732287
+//                        )
 
                         NavigateInfoOverlay(
                             viewModel = viewModel,
                             modifier = Modifier.align(Alignment.BottomStart),
+                            straightDistance = straightDistance,
                         )
 
                         if (showBottomSheet) {
@@ -167,7 +173,7 @@ class TestActivity : ComponentActivity() {
                                     showBottomSheet = showStatus
                                 },
                                 setPaths = { pair ->
-                                    paths = Paths(pair.first, pair.second)
+                                    paths = Paths(origin = pair.first, destination = pair.second)
                                 }
                             )
                         }
@@ -180,13 +186,19 @@ class TestActivity : ComponentActivity() {
     @Composable
     fun NavigateInfoOverlay(
         viewModel: LocationListViewModel,
-        modifier: Modifier
+        modifier: Modifier,
+        straightDistance: Int,
     ) {
         var routeInfoPair by remember { mutableStateOf(Pair("", "")) }
 
-        LaunchedEffect(viewModel.routeInfo) {
-            routeInfoPair = Utils.setRouteInfo(viewModel.routeInfo)
-        }
+//        LaunchedEffect(viewModel.routeLineList2.value) {
+//            com.orhanobut.logger.Logger.d(viewModel.routeLineList2.value.toString())
+//            if (viewModel.routeLineList2.value?.isNotEmpty() == true) {
+//                routeInfoPair = Utils.setRouteInfo(
+//                    viewModel.routeInfo2,
+//                )
+//            }
+//        }
         Column(
             modifier = modifier
                 .width(220.dp)
@@ -212,6 +224,13 @@ class TestActivity : ComponentActivity() {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
             )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = Utils.meterWithComma("직선 거리", straightDistance),
+                color = Color(0xFFFFD700),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 
@@ -219,7 +238,6 @@ class TestActivity : ComponentActivity() {
         origin: String,
         destination: String,
     ) {
-
         val routeSegmentList = mutableListOf<RouteLineSegment>()
 
         println("@@@@@ drawRouteLine()")
@@ -233,24 +251,24 @@ class TestActivity : ComponentActivity() {
             labelLayer.remove(labelLayer.getLabel("end_label"))
         }
 
-        viewModel.routeLineList.value?.forEach {
-            val style = when (it.trafficState) {
-                TrafficState.UNKNOWN -> TrafficState.UNKNOWN.styleRes
-                TrafficState.JAM -> TrafficState.JAM.styleRes
-                TrafficState.DELAY -> TrafficState.DELAY.styleRes
-                TrafficState.SLOW -> TrafficState.SLOW.styleRes
-                TrafficState.NORMAL -> TrafficState.NORMAL.styleRes
-                TrafficState.BLOCK -> TrafficState.BLOCK.styleRes
-            }
-
-            val routeLineStyle = RouteLineStyle.from(this@TestActivity, style)
-
-            routeSegmentList.add(
-                RouteLineSegment.from(
-                    it.wayList, routeLineStyle
-                )
-            )
-        }
+//        viewModel.routeLineList2.value?.forEach {
+//            val style = when (it.trafficState) {
+//                TrafficState.UNKNOWN -> TrafficState.UNKNOWN.styleRes
+//                TrafficState.JAM -> TrafficState.JAM.styleRes
+//                TrafficState.DELAY -> TrafficState.DELAY.styleRes
+//                TrafficState.SLOW -> TrafficState.SLOW.styleRes
+//                TrafficState.NORMAL -> TrafficState.NORMAL.styleRes
+//                TrafficState.BLOCK -> TrafficState.BLOCK.styleRes
+//            }
+//
+//            val routeLineStyle = RouteLineStyle.from(this@TestActivity, style)
+//
+//            routeSegmentList.add(
+//                RouteLineSegment.from(
+//                    it.wayList, routeLineStyle
+//                )
+//            )
+//        }
 
         val options = RouteLineOptions.from(
             routeSegmentList
@@ -284,11 +302,6 @@ class TestActivity : ComponentActivity() {
             )
         )
     }
-
-    private fun drawLabel() {
-
-    }
-
 
     @Composable
     fun LectureKakaoMap(
@@ -347,7 +360,6 @@ class TestActivity : ComponentActivity() {
         lat: Double,
         lng: Double
     ) {
-
         val pos = LatLng.from(lat, lng)
 
         val marker = when (text) {
@@ -404,25 +416,25 @@ class TestActivity : ComponentActivity() {
         )
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView?.finish()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        println("@@@@@@onResume()")
-        if (mapView != null) {
-//            println("Map View is Null")
-            mapView!!.resume()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("@@@@@@onPause()")
-        mapView?.pause()
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        mapView?.finish()
+//    }
+//
+//    override fun onResume() {
+//        super.onResume()
+//        println("@@@@@@onResume()")
+//        if (mapView != null) {
+//            println("Map View is not Null")
+//            mapView?.resume()
+//        }
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        println("@@@@@@onPause()")
+//        mapView?.pause()
+//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -452,7 +464,8 @@ fun BottomSheetSection(
                 Column {
                     Spacer(
                         modifier = Modifier
-                            .height(22.dp).fillMaxWidth()
+                            .height(22.dp)
+                            .fillMaxWidth()
                             .background(
                                 Color(0xFF454545).copy(0.4f)
                             )
@@ -468,15 +481,15 @@ fun BottomSheetSection(
                                 onClick = {
                                     setShowBottomSheet(false)
                                     println(viewModel.pathList[index])
-                                    println(viewModel.routeList.toString())
-                                    viewModel.loadRouteInfo(
-                                        viewModel.pathList[index].origin,
-                                        viewModel.pathList[index].destination,
-                                    )
-                                    viewModel.loadRouteLineList(
-                                        viewModel.pathList[index].origin,
-                                        viewModel.pathList[index].destination,
-                                    )
+//                                    println(viewModel.routeList2.toString())
+//                                    viewModel.loadRouteInfo(
+//                                        viewModel.pathList[index].origin,
+//                                        viewModel.pathList[index].destination,
+//                                    )
+//                                    viewModel.loadRouteLineList(
+//                                        viewModel.pathList[index].origin,
+//                                        viewModel.pathList[index].destination,
+//                                    )
                                     setPaths(
                                         Pair(
                                             viewModel.pathList[index].origin,
@@ -509,15 +522,12 @@ fun BottomSheetSection(
     }
 }
 
-
 @Composable
-fun DirectionComponent(
+fun Direction2Component(
     viewModel: LocationListViewModel,
     onClick: () -> Unit,
     paths: Paths
 ) {
-//    Text(text = viewModel.routeInfo.toString())
-//    Text(text = viewModel.routeList.toString())
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -554,28 +564,4 @@ fun DirectionComponent(
             )
         }
     }
-//    Column(
-//        modifier = Modifier
-//            .clickWithCoroutine(coroutineScope) {
-//                onClick()
-//            }
-//            .padding(
-//                horizontal = 20.dp,
-//                vertical = 20.dp
-//            )
-//    ) {
-//        Row {
-//            Text(text = "출발지 : ${paths.destination}")
-//        }
-//
-//        Row {
-//            Text(text = "도착지 : ${paths.origin}")
-//        }
-//        Spacer(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(1.dp)
-//                .background(color = Color.Black.copy(0.5f)),
-//        )
-//    }
 }

@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pardess.directions.domain.model.Paths
-import com.pardess.directions.presentation.DirectionComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
