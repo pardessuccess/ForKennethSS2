@@ -25,7 +25,7 @@ class DirectionViewModel @Inject constructor(
     private val getRouteList: GetRouteList,
     private val getRouteInfo: GetRouteInfo
 ) : ViewModel() {
-
+//dasf
     init {
         updateLocationList()
     }
