@@ -1,18 +1,18 @@
-package com.pardess.directions.domain.usecase.route
+package com.pardess.directions.domain.usecase.distance_time
 
-import com.pardess.directions.data.Resource
-import com.pardess.directions.domain.model.RouteLines
+import com.pardess.directions.data.Result
+import com.pardess.directions.domain.model.RouteInfo
 import com.pardess.directions.domain.repository.KakaoApiRepository
 import javax.inject.Inject
 
-class GetRouteList @Inject constructor(
+class GetRouteInfoUseCase @Inject constructor(
     private val kakaoApiRepository: KakaoApiRepository
 ) {
     suspend operator fun invoke(
         origin: String,
         destination: String
-    ): Resource<List<RouteLines>> {
-        return kakaoApiRepository.getRouteLines(
+    ): Result<RouteInfo> {
+        return kakaoApiRepository.getRouteInfo(
             origin = origin,
             destination = destination
         )

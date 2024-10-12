@@ -37,17 +37,17 @@
 
         </activity>
 
-        <activity
-            android:name=".not_use.TestActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
+<!--        <activity-->
+<!--            android:name=".not_use.TestActivity"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            android:theme="@style/Theme.AppCompat.NoActionBar">-->
+<!--            &lt;!&ndash;            <intent-filter>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
 
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
-        </activity>
+<!--            &lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
+<!--            &lt;!&ndash;            </intent-filter>&ndash;&gt;-->
+<!--        </activity>-->
 
         <activity
             android:name=".presentation.NewActivity"

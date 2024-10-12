@@ -1,4 +1,4 @@
-package com.pardess.directions.di
+package com.pardess.directions.data.di
 
 import com.pardess.directions.data.DataMapper
 import com.pardess.directions.data.repository.KakaoApiRepositoryImpl

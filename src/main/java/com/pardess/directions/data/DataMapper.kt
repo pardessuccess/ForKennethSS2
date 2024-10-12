@@ -1,18 +1,17 @@
 package com.pardess.directions.data
 
 import com.kakao.vectormap.LatLng
-import com.pardess.directions.R
 import com.pardess.directions.data.response.distance_time.RouteInfoDto
 import com.pardess.directions.data.response.route.RouteListDto
 import com.pardess.directions.domain.model.RouteInfo
-import com.pardess.directions.domain.model.RouteLines
+import com.pardess.directions.domain.model.RouteLine
 import com.pardess.directions.domain.model.TrafficState
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 object DataMapper {
 
-    fun mapToWayLine(routeListDto: RouteListDto): List<RouteLines> {
+    fun mapToWayLine(routeListDto: RouteListDto): List<RouteLine> {
         return routeListDto.map { routeItem ->
             val latLngList = routeItem.points.split(" ").map { point ->
 
@@ -53,7 +52,7 @@ object DataMapper {
                 }
             }
 
-            RouteLines(
+            RouteLine(
                 wayList = latLngList,
                 trafficState = trafficState
             )

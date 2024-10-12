@@ -1,15 +1,15 @@
 package com.pardess.directions.data
 
-sealed class Resource<T>(
+sealed class Result<T>(
     val data: T? = null,
     val message: String? = null,
     val errorType: ErrorType = ErrorType.UNKNOWN_ERROR
 ) {
 
-    class Success<T>(data: T) : Resource<T>(data)
+    class Success<T>(data: T) : Result<T>(data)
 
     class Error<T>(message: String, errorType: ErrorType) :
-        Resource<T>(message = message, errorType = errorType)
+        Result<T>(message = message, errorType = errorType)
 
     override fun toString(): String {
         return "Resource(data=$data, message=$message, errorType=$errorType)"

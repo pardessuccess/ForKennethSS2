@@ -12,12 +12,12 @@ fun DirectionAlertDialog(errorMessage: String, errorCode: String, onDismiss: () 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "오류 발생")
+            Text(text = "경로 탐색 성공")
         },
         text = {
             Column {
                 Text(text = errorMessage)
-                Text(text = errorCode)
+                Text(text = "경로를 찾아 보시겠어요?")
             }
         },
         confirmButton = {

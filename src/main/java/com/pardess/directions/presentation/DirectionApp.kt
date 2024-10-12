@@ -1,12 +1,12 @@
 package com.pardess.directions.presentation
 
+import android.provider.ContactsContract.Data
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,14 +25,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,9 +46,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.orhanobut.logger.Logger
 import com.pardess.directions.R
+import com.pardess.directions.data.Result
 import com.pardess.directions.data.response.location.Location
-import com.pardess.directions.domain.model.Paths
+import com.pardess.directions.domain.model.Route
 import com.pardess.directions.domain.model.RouteInfo
 import com.pardess.directions.not_use.clickWithCoroutine
 import com.pardess.directions.presentation.component.ErrorAlertDialog
@@ -68,8 +69,6 @@ fun DirectionApp(
 
             val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-            var paths by remember { mutableStateOf(Paths("", "")) }
-
             var count by remember { mutableIntStateOf(0) }
 
             val straightDistance = viewModel.straightDistance
@@ -79,30 +78,40 @@ fun DirectionApp(
 
             val dataState = viewModel.dataState
 
+            var showErrorDialog by remember { mutableStateOf(false) }
+
+            if (dataState is DataState.Success) {
+                Logger.d("dataState" + dataState.toString())
+                showBottomSheet = false
+            } else if (dataState is DataState.Error) {
+                showErrorDialog = true
+            }
+
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        text = {
-                            Text("길찾기")
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icon_car),
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            showBottomSheet = true
-                        },
-                    )
+//                    ExtendedFloatingActionButton(
+//                        text = {
+//                            Text("길찾기")
+//                        },
+//                        icon = {
+//                            Icon(
+//                                painter = painterResource(id = R.drawable.icon_car),
+//                                contentDescription = null
+//                            )
+//                        },
+//                        onClick = {
+//                            showBottomSheet = true
+//                        },
+//                    )
                 }
             ) {
                 Box(modifier = Modifier.padding(top = it.calculateTopPadding())) {
                     Column(
                         modifier = Modifier.align(Alignment.TopCenter)
-                    ){
+                    ) {
                         SearchSection(
+                            viewModel = viewModel,
                             onClick = {
                                 showBottomSheet = true
                             }
@@ -118,19 +127,23 @@ fun DirectionApp(
                         routeInfo = routeInfo
                     )
 
-                    if (dataState is DataState.Error) {
-                        ErrorAlertDialog(
-                            errorMessage = dataState.message,
-                            errorCode = dataState.errorType.toString(),
-                            onDismiss = {
-                                viewModel.dataState = DataState.Success()
-                            }
-                        )
-                    } else if (dataState is DataState.Loading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+                    if (showErrorDialog) {
+                        if (dataState is DataState.Error) {
+                            ErrorAlertDialog(
+                                errorMessage = dataState.message,
+                                errorCode = dataState.errorType.toString(),
+                                onDismiss = {
+                                    showErrorDialog = false
+                                }
+                            )
+                        }
                     }
+
+//                    if (dataState is DataState.Loading) {
+//                        CircularProgressIndicator(
+//                            modifier = Modifier.align(Alignment.Center)
+//                        )
+//                    }
 
 
 
@@ -139,13 +152,6 @@ fun DirectionApp(
                             viewModel = viewModel,
                             locationList = locationList,
                             bottomSheetState = bottomSheetState,
-                            setShowBottomSheet = { showStatus ->
-                                count++
-                                showBottomSheet = showStatus
-                            },
-                            setPaths = { pair ->
-                                paths = Paths(origin = pair.first, destination = pair.second)
-                            }
                         )
                     }
                 }
@@ -156,10 +162,10 @@ fun DirectionApp(
 
 @Composable
 fun SearchSection(
+    viewModel: DirectionViewModel,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -177,10 +183,23 @@ fun SearchSection(
                     .background(Color(0xFF5284FA), shape = RoundedCornerShape(5.dp))
 
             ) {
+                var origin = viewModel.route.origin
+                var destination = viewModel.route.destination
+
+                val isEmpty = viewModel.route.origin.isEmpty()
+
+                var textColor = Color(0xFFFFFFFF)
+
+                if (isEmpty) {
+                    origin = "출발지"
+                    destination = "도착지"
+                    textColor = Color(0xFFFFFFFF).copy(0.7f)
+                }
+
                 Text(
-                    text = "서울역", color = Color(0xFFFFFFFF),
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
-                    fontSize = 16.sp,
+                    text = origin, color = textColor,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    fontSize = 17.sp,
                 )
                 Spacer(
                     modifier = Modifier
@@ -189,9 +208,9 @@ fun SearchSection(
                         .background(Color(0xFF3D73FA))
                 )
                 Text(
-                    text = "판교역 신분당선", color = Color(0xFFFFFFFF),
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
-                    fontSize = 16.sp,
+                    text = destination, color = textColor,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    fontSize = 17.sp,
                 )
             }
         }
@@ -204,12 +223,13 @@ fun SearchSection(
                 .background(
                     Color(0xFF5284FA),
                     shape = RoundedCornerShape(5.dp)
-                ).padding(7.dp),
+                )
+                .padding(7.dp),
         ) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+            ) {
 
                 Icon(
                     painter = painterResource(R.drawable.ic_direction),
@@ -277,13 +297,6 @@ fun NavigateInfoOverlay(
     }
 }
 
-@Preview
-@Composable
-private fun sadfdaf() {
-    SearchSection {
-
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -291,13 +304,11 @@ fun BottomSheetSection(
     viewModel: DirectionViewModel,
     locationList: List<Location>,
     bottomSheetState: SheetState,
-    setShowBottomSheet: (Boolean) -> Unit,
-    setPaths: (Pair<String, String>) -> Unit,
 ) {
 
     ModalBottomSheet(
         onDismissRequest = {
-            setShowBottomSheet(false)
+
         },
         sheetState = bottomSheetState,
         dragHandle = null,
@@ -326,43 +337,35 @@ fun BottomSheetSection(
                         )
                     ) {
                         items(locationList.size) { index ->
+
+                            val location = locationList[index]
+
                             DirectionComponent(
                                 viewModel,
                                 {
-                                    setShowBottomSheet(false)
-                                    println(locationList[index])
-                                    viewModel.location = Pair(
-                                        locationList[index].origin,
-                                        locationList[index].destination,
-                                    )
+                                    println(location)
                                     viewModel.updateRouteInfo(
-                                        locationList[index].origin,
-                                        locationList[index].destination,
+                                        location.origin,
+                                        location.destination,
                                     )
                                     viewModel.updateRouteList(
-                                        locationList[index].origin,
-                                        locationList[index].destination,
-                                    )
-                                    setPaths(
-                                        Pair(
-                                            locationList[index].origin,
-                                            locationList[index].destination
-                                        )
+                                        location.origin,
+                                        location.destination,
                                     )
                                 },
-                                Paths(
+                                Route(
                                     locationList[index].origin,
                                     locationList[index].destination,
                                 ),
                             )
-                            if (locationList.size == index + 1) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .height(35.dp)
-                                        .fillMaxWidth()
-                                        .background(color = Color.Black.copy(0.5f))
-                                )
-                            }
+//                            if (locationList.size == index + 1) {
+//                                Spacer(
+//                                    modifier = Modifier
+//                                        .height(35.dp)
+//                                        .fillMaxWidth()
+//                                        .background(color = Color.Black.copy(0.5f))
+//                                )
+//                            }
                         }
                     }
                 }
@@ -375,7 +378,7 @@ fun BottomSheetSection(
 fun DirectionComponent(
     viewModel: DirectionViewModel,
     onClick: () -> Unit,
-    paths: Paths
+    route: Route,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -388,7 +391,7 @@ fun DirectionComponent(
                 onClick()
             },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(10.dp)
+        elevation = CardDefaults.cardElevation(5.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -401,14 +404,14 @@ fun DirectionComponent(
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = paths.origin,
+                text = route.origin,
                 fontSize = 20.sp,
             )
             Spacer(modifier = Modifier.width(10.dp))
             Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "right arrow")
             Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = paths.destination,
+                text = route.destination,
                 fontSize = 20.sp
             )
         }

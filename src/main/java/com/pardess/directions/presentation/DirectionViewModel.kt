@@ -7,13 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
-import com.pardess.directions.data.Resource
+import com.pardess.directions.data.Result
 import com.pardess.directions.data.response.location.Location
+import com.pardess.directions.domain.model.Route
 import com.pardess.directions.domain.model.RouteInfo
-import com.pardess.directions.domain.model.RouteLines
-import com.pardess.directions.domain.usecase.distance_time.GetRouteInfo
-import com.pardess.directions.domain.usecase.location.GetPathList
-import com.pardess.directions.domain.usecase.route.GetRouteList
+import com.pardess.directions.domain.model.RouteLine
+import com.pardess.directions.domain.usecase.distance_time.GetRouteInfoUseCase
+import com.pardess.directions.domain.usecase.location.GetRouteListUseCase
+import com.pardess.directions.domain.usecase.route.GetRouteLineListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,34 +22,36 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DirectionViewModel @Inject constructor(
-    private val getPathList: GetPathList,
-    private val getRouteList: GetRouteList,
-    private val getRouteInfo: GetRouteInfo
+    private val getRouteListUseCase: GetRouteListUseCase,
+    private val getRouteLineListUseCase: GetRouteLineListUseCase,
+    private val getRouteInfoUseCase: GetRouteInfoUseCase
 ) : ViewModel() {
+
+    var dataState by mutableStateOf<DataState>(DataState.Initial())
+        set
 
     init {
         updateLocationList()
+        dataState = DataState.Loading()
     }
-
-    var dataState by mutableStateOf<DataState>(DataState.Success())
-        set
 
     var straightDistance by mutableIntStateOf(0)
         set
 
-    var location by mutableStateOf(Pair("", ""))
+    var route by mutableStateOf(Route("", ""))
         set
 
     var locationList by mutableStateOf<List<Location>>(emptyList())
         private set
 
     fun updateLocationList() = viewModelScope.launch {
-//        dataState = DataState.Loading()
-        val data = getPathList()
+        val data = getRouteListUseCase()
         Logger.d(data.data.toString())
-        if (data is Resource.Success) {
+        if (data is Result.Success) {
             locationList = data.data!!.locations
-            dataState = DataState.Success()
+            dataState = DataState.Success(
+                message = "GET ROUTE LIST USE CASE"
+            )
         } else {
             locationList = emptyList()
             dataState = DataState.Error(data.message.toString(), data.errorType)
@@ -60,11 +63,14 @@ class DirectionViewModel @Inject constructor(
 
     fun updateRouteInfo(origin: String, destination: String) = viewModelScope.launch {
         dataState = DataState.Loading()
-        val data = getRouteInfo(origin = origin, destination = destination)
+        val data = getRouteInfoUseCase(origin = origin, destination = destination)
         Logger.d(data.toString())
-        if (data is Resource.Success) {
+        route = Route(origin, destination)
+        if (data is Result.Success) {
             routeInfo = data.data!!
-            dataState = DataState.Success()
+            dataState = DataState.Success(
+                message = "GET ROUTE INFO USE CASE"
+            )
         } else {
             straightDistance = 0
             routeLineList = emptyList()
@@ -73,20 +79,22 @@ class DirectionViewModel @Inject constructor(
         }
     }
 
-    var routeLineList by mutableStateOf<List<RouteLines>>(emptyList())
+    var routeLineList by mutableStateOf<List<RouteLine>>(emptyList())
         private set
 
     fun updateRouteList(origin: String, destination: String) = viewModelScope.launch {
         dataState = DataState.Loading()
-        val data = getRouteList(origin = origin, destination = destination)
+        val data = getRouteLineListUseCase(origin = origin, destination = destination)
         Logger.d(data.toString())
-        if (data is Resource.Success) {
+        if (data is Result.Success) {
             routeLineList = data.data!!
             straightDistance = Utils.haversine(
                 data.data.first().wayList.first(),
                 data.data.last().wayList.last()
             )
-            dataState = DataState.Success()
+            dataState = DataState.Success(
+                message = "GET ROUTELINE INFO USE CASE"
+            )
         } else {
             straightDistance = 0
             routeLineList = emptyList()
