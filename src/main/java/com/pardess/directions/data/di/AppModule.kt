@@ -1,4 +1,4 @@
-package com.pardess.directions.di
+package com.pardess.directions.data.di
 
 import android.content.Context
 import com.google.gson.GsonBuilder

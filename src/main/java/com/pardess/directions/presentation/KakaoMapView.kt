@@ -27,18 +27,17 @@ import com.kakao.vectormap.label.LabelTextBuilder
 import com.kakao.vectormap.label.LabelTextStyle
 import com.kakao.vectormap.label.LabelTransition
 import com.kakao.vectormap.label.Transition
-import com.kakao.vectormap.route.RouteLine
 import com.kakao.vectormap.route.RouteLineLayer
 import com.kakao.vectormap.route.RouteLineOptions
 import com.kakao.vectormap.route.RouteLineSegment
 import com.kakao.vectormap.route.RouteLineStyle
 import com.orhanobut.logger.Logger
 import com.pardess.directions.R
-import com.pardess.directions.domain.model.RouteLines
 import com.pardess.directions.domain.model.TrafficState
+import com.pardess.directions.presentation.DataState.Success
 
 private lateinit var layer: RouteLineLayer
-private lateinit var multiStyleLine: RouteLine
+private lateinit var multiStyleLine: com.kakao.vectormap.route.RouteLine
 private lateinit var labelLayer: LabelLayer
 private lateinit var kakaoMap: KakaoMap
 private lateinit var mapView: MapView
@@ -51,22 +50,31 @@ fun KakaoMapView(
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
     val routeLineList = viewModel.routeLineList
+    val dateState = viewModel.dataState
+    val location = viewModel.route
 
-    val location = viewModel.location
     if (routeLineList.isNotEmpty()) {
-        Logger.e(routeLineList.toString())
-        drawRouteLine(
-            context = context,
-            routeLineList = routeLineList,
-            origin = location.first,
-            destination = location.second
-        )
+        if (dateState is Success) {
+            Logger.d(routeLineList.toString())
+            drawRouteLine(
+                context = context,
+                routeLineList = routeLineList,
+                origin = location.origin,
+                destination = location.destination
+            )
+        }
+    }
+    if (dateState is DataState.Error) {
+        labelLayer.remove(labelLayer.getLabel("start_label"))
+        labelLayer.remove(labelLayer.getLabel("end_label"))
+        if (::multiStyleLine.isInitialized) {
+            layer.remove(multiStyleLine)
+        }
     }
 
     mapView = rememberMapViewWithLifecycle(context, lifeCycleOwner)
 
     Surface {
-
         AndroidView(
             factory = { context ->
                 mapView.apply {
@@ -103,9 +111,10 @@ fun KakaoMapView(
     }
 }
 
+
 fun drawRouteLine(
     context: Context,
-    routeLineList: List<RouteLines>,
+    routeLineList: List<com.pardess.directions.domain.model.RouteLine>,
     origin: String,
     destination: String,
 ) {
@@ -115,6 +124,10 @@ fun drawRouteLine(
     if (::multiStyleLine.isInitialized) {
         layer.remove(multiStyleLine)
     }
+
+    val pointsLatLng = routeLineList.flatMap { routeLines ->
+        routeLines.wayList
+    }.toTypedArray()
 
     if (::labelLayer.isInitialized) {
         labelLayer.remove(labelLayer.getLabel("start_label"))
@@ -164,14 +177,18 @@ fun drawRouteLine(
         lng = routeSegmentList.last().lngs.last()
     )
 
-    val cameraLatitude = (routeSegmentList[0].lats[0] + routeSegmentList.last().lats.last()) / 2
-    val cameraLongitude =
-        (routeSegmentList[0].lngs[0] + routeSegmentList.last().lngs.last()) / 2
 
+//    val cameraLatitude = (routeSegmentList[0].lats[0] + routeSegmentList.last().lats.last()) / 2
+//    val cameraLongitude =
+//        (routeSegmentList[0].lngs[0] + routeSegmentList.last().lngs.last()) / 2
+
+//    kakaoMap.moveCamera(
+//        CameraUpdateFactory.newCenterPosition(
+//            LatLng.from(cameraLatitude, cameraLongitude), 11
+//        )
+//    )
     kakaoMap.moveCamera(
-        CameraUpdateFactory.newCenterPosition(
-            LatLng.from(cameraLatitude, cameraLongitude), 11
-        )
+        CameraUpdateFactory.fitMapPoints(pointsLatLng, 250), CameraAnimation.from(1000, true, true)
     )
 }
 

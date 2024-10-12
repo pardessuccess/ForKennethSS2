@@ -11,62 +11,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.pardess.directions.domain.model.Paths
 import com.pardess.directions.presentation.DirectionComponent
 import com.pardess.directions.presentation.DirectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-val lst = listOf(
-    Paths(
-        "서울역",
-        "판교역"
-    ),
-    Paths(
-        "대전역",
-        "성심당"
-    ),
-    Paths(
-        "수서역",
-        "마곡역"
-    ),
-    Paths(
-        "강남역",
-        "알파돔타워"
-    ),
-    Paths(
-        "서울역",
-        "판교역"
-    ),
-    Paths(
-        "대전역",
-        "성심당"
-    ),
-    Paths(
-        "수서역",
-        "마곡역"
-    ),
-    Paths(
-        "강남역",
-        "알파돔타워"
-    ),
-    Paths(
-        "서울역",
-        "판교역"
-    ),
-    Paths(
-        "대전역",
-        "성심당"
-    ),
-    Paths(
-        "수서역",
-        "마곡역"
-    ),
-    Paths(
-        "강남역",
-        "알파돔타워"
-    ),
-)
 
 @Composable
 fun LocationListScreen(
@@ -87,16 +36,16 @@ fun LocationListScreen(
         ) {
             LazyColumn() {
                 items(viewModel.pathList.size) { index ->
-                    DirectionComponent(
-                        paths = Paths(
-                            viewModel.pathList[index].destination,
-                            viewModel.pathList[index].origin,
-                        ),
-                        viewModel = viewModel,
-                        onClick = {
-
-                        }
-                    )
+//                    DirectionComponent(
+//                        paths = Paths(
+//                            viewModel.pathList[index].destination,
+//                            viewModel.pathList[index].origin,
+//                        ),
+//                        viewModel = viewModel,
+//                        onClick = {
+//
+//                        }
+//                    )
                 }
             }
         }

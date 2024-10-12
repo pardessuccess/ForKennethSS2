@@ -27,7 +27,7 @@ import com.kakao.vectormap.route.RouteLineSegment
 import com.kakao.vectormap.route.RouteLineStyle
 import com.pardess.directions.data.response.distance_time.RouteInfoDto
 import com.pardess.directions.databinding.ActivityMainBinding
-import com.pardess.directions.domain.model.Route
+import com.pardess.directions.domain.model.RouteExample
 import dagger.hilt.android.AndroidEntryPoint
 
 
