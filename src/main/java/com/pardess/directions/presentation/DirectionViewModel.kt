@@ -67,6 +67,7 @@ class DirectionViewModel @Inject constructor(
             dataState = DataState.Success()
         } else {
             straightDistance = 0
+            routeLineList = emptyList()
             routeInfo = RouteInfo(0, 0, 0, 0)
             dataState = DataState.Error(data.message.toString(), data.errorType)
         }
@@ -89,6 +90,7 @@ class DirectionViewModel @Inject constructor(
         } else {
             straightDistance = 0
             routeLineList = emptyList()
+            routeInfo = RouteInfo(0, 0, 0, 0)
             dataState = DataState.Error(data.message.toString(), data.errorType)
         }
     }
